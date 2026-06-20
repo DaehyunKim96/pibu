@@ -1,11 +1,13 @@
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import HomePage from './pages/HomePage'
 import ProductsPage from './pages/ProductsPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import IngredientsPage from './pages/IngredientsPage'
 import SkinTypePage from './pages/SkinTypePage'
 import GuidePage from './pages/GuidePage'
+import BuildLogPage from './pages/BuildLogPage'
+import ArchitecturePage from './pages/ArchitecturePage'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -50,6 +52,62 @@ function ThemeToggle({ theme, toggle }: { theme: Theme; toggle: () => void }) {
   )
 }
 
+const DEV_ITEMS = [
+  { to: '/build-log', icon: '📝', label: '빌드 로그', desc: '요청·작업 내역' },
+  { to: '/architecture', icon: '🏗️', label: '서비스 구조', desc: '아키텍처·데이터' },
+]
+
+function DevMenu() {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const { pathname } = useLocation()
+
+  useEffect(() => setOpen(false), [pathname])
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    function onEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onEsc)
+    return () => {
+      document.removeEventListener('mousedown', onDoc)
+      document.removeEventListener('keydown', onEsc)
+    }
+  }, [])
+
+  return (
+    <div className="dev-menu" ref={ref}>
+      <button
+        className={`dev-btn ${open ? 'open' : ''}`}
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="true"
+        aria-expanded={open}
+      >
+        <span className="dev-dot" />
+        dev
+        <span className="caret">▾</span>
+      </button>
+      {open && (
+        <div className="dev-dropdown" role="menu">
+          <span className="dev-dd-label">개발자 페이지</span>
+          {DEV_ITEMS.map((d) => (
+            <NavLink key={d.to} to={d.to} role="menuitem" className="dev-dd-item">
+              <span className="dev-dd-ico">{d.icon}</span>
+              <span className="dev-dd-text">
+                <b>{d.label}</b>
+                <small>{d.desc}</small>
+              </span>
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Header() {
   const [theme, toggle] = useTheme()
   const [open, setOpen] = useState(false)
@@ -72,6 +130,7 @@ function Header() {
             ))}
           </nav>
           <div className="header-actions">
+            <DevMenu />
             <ThemeToggle theme={theme} toggle={toggle} />
             <button
               className="menu-btn"
@@ -132,6 +191,8 @@ function Footer() {
           <Link to="/skin-type">내 피부 타입 진단</Link>
           <Link to="/ingredients">성분 사전</Link>
           <Link to="/guide">트러블 피부 가이드</Link>
+          <Link to="/build-log">빌드 로그</Link>
+          <Link to="/architecture">서비스 구조</Link>
         </div>
       </div>
     </footer>
@@ -151,6 +212,8 @@ export default function App() {
           <Route path="/ingredients" element={<IngredientsPage />} />
           <Route path="/skin-type" element={<SkinTypePage />} />
           <Route path="/guide" element={<GuidePage />} />
+          <Route path="/build-log" element={<BuildLogPage />} />
+          <Route path="/architecture" element={<ArchitecturePage />} />
         </Routes>
       </main>
       <Footer />
