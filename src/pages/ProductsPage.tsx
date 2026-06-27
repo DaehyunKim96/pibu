@@ -1,13 +1,17 @@
 import { useState, useMemo } from 'react'
 import { BRAND_PROFILES, PRODUCTS, PRODUCT_CATEGORY_LABELS } from '../data/products'
 import type { ProductCategory } from '../data/products'
+import { SKIN_TYPES } from '../data/skinTypes'
+import type { SkinTypeId } from '../data/skinTypes'
 import ProductCard from '../components/ProductCard'
 
 type CatFilter = ProductCategory | 'all'
+type TypeFilter = SkinTypeId | 'all'
 type BrandFilter = string | 'all'
 
 export default function ProductsPage() {
   const [cat, setCat] = useState<CatFilter>('all')
+  const [type, setType] = useState<TypeFilter>('all')
   const [brand, setBrand] = useState<BrandFilter>('all')
   const [fragranceFree, setFragranceFree] = useState(false)
 
@@ -20,11 +24,12 @@ export default function ProductsPage() {
   const filtered = useMemo(() => {
     return PRODUCTS.filter((p) => {
       if (cat !== 'all' && p.category !== cat) return false
+      if (type !== 'all' && !p.bestFor.includes(type)) return false
       if (brand !== 'all' && p.brand !== brand) return false
       if (fragranceFree && !p.fragranceFree) return false
       return true
     })
-  }, [cat, brand, fragranceFree])
+  }, [cat, type, brand, fragranceFree])
 
   return (
     <div className="page">
@@ -34,8 +39,8 @@ export default function ProductsPage() {
             제품 <em>둘러보기</em>
           </h1>
           <p>
-            전성분을 분석한 {PRODUCTS.length}개 제품. 카테고리·브랜드별로 필터링하고, 브랜드가
-            어떤 케어 방향과 제품 성격을 갖는지 함께 살펴보세요.
+            전성분을 분석한 {PRODUCTS.length}개 제품. 카테고리·피부 타입·브랜드별로 필터링하고,
+            브랜드가 어떤 케어 방향과 제품 성격을 갖는지 함께 살펴보세요.
           </p>
         </div>
 
@@ -54,6 +59,25 @@ export default function ProductsPage() {
               onClick={() => setCat(c)}
             >
               {PRODUCT_CATEGORY_LABELS[c]}
+            </button>
+          ))}
+        </div>
+
+        {/* 피부 타입 필터 */}
+        <div className="filter-bar">
+          <button
+            className={`filter-btn ${type === 'all' ? 'active' : ''}`}
+            onClick={() => setType('all')}
+          >
+            모든 타입
+          </button>
+          {SKIN_TYPES.map((t) => (
+            <button
+              key={t.id}
+              className={`filter-btn ${type === t.id ? 'active' : ''}`}
+              onClick={() => setType(t.id)}
+            >
+              {t.emoji} {t.name}
             </button>
           ))}
         </div>
@@ -114,7 +138,9 @@ export default function ProductsPage() {
         </div>
 
         <p style={{ color: 'var(--ink-faint)', fontSize: 14, marginBottom: 20 }}>
-          {brand === 'all' ? `${filtered.length}개 제품` : `${brand} ${selectedBrandCount}개 중 ${filtered.length}개 제품`}
+          {brand === 'all'
+            ? `${filtered.length}개 제품`
+            : `${brand} ${selectedBrandCount}개 중 ${filtered.length}개 제품`}
         </p>
 
         {filtered.length > 0 ? (
