@@ -1,28 +1,30 @@
 import { useState, useMemo } from 'react'
-import { PRODUCTS, PRODUCT_CATEGORY_LABELS } from '../data/products'
+import { BRAND_PROFILES, PRODUCTS, PRODUCT_CATEGORY_LABELS } from '../data/products'
 import type { ProductCategory } from '../data/products'
-import { SKIN_TYPES } from '../data/skinTypes'
-import type { SkinTypeId } from '../data/skinTypes'
 import ProductCard from '../components/ProductCard'
 
 type CatFilter = ProductCategory | 'all'
-type TypeFilter = SkinTypeId | 'all'
+type BrandFilter = string | 'all'
 
 export default function ProductsPage() {
   const [cat, setCat] = useState<CatFilter>('all')
-  const [type, setType] = useState<TypeFilter>('all')
+  const [brand, setBrand] = useState<BrandFilter>('all')
   const [fragranceFree, setFragranceFree] = useState(false)
 
   const categories = Object.keys(PRODUCT_CATEGORY_LABELS) as ProductCategory[]
+  const brands = Array.from(new Set(PRODUCTS.map((p) => p.brand)))
+  const selectedBrand = brand === 'all' ? null : BRAND_PROFILES[brand]
+  const selectedBrandCount =
+    brand === 'all' ? PRODUCTS.length : PRODUCTS.filter((p) => p.brand === brand).length
 
   const filtered = useMemo(() => {
     return PRODUCTS.filter((p) => {
       if (cat !== 'all' && p.category !== cat) return false
-      if (type !== 'all' && !p.bestFor.includes(type)) return false
+      if (brand !== 'all' && p.brand !== brand) return false
       if (fragranceFree && !p.fragranceFree) return false
       return true
     })
-  }, [cat, type, fragranceFree])
+  }, [cat, brand, fragranceFree])
 
   return (
     <div className="page">
@@ -32,8 +34,8 @@ export default function ProductsPage() {
             제품 <em>둘러보기</em>
           </h1>
           <p>
-            전성분을 분석한 {PRODUCTS.length}개 제품. 카테고리·피부 타입으로 필터링하고, 카드를
-            눌러 “왜 이 특성을 가지는지” 자세히 살펴보세요.
+            전성분을 분석한 {PRODUCTS.length}개 제품. 카테고리·브랜드별로 필터링하고, 브랜드가
+            어떤 케어 방향과 제품 성격을 갖는지 함께 살펴보세요.
           </p>
         </div>
 
@@ -56,21 +58,21 @@ export default function ProductsPage() {
           ))}
         </div>
 
-        {/* 피부 타입 필터 */}
+        {/* 브랜드 필터 */}
         <div className="filter-bar">
           <button
-            className={`filter-btn ${type === 'all' ? 'active' : ''}`}
-            onClick={() => setType('all')}
+            className={`filter-btn ${brand === 'all' ? 'active' : ''}`}
+            onClick={() => setBrand('all')}
           >
-            모든 타입
+            모든 브랜드
           </button>
-          {SKIN_TYPES.map((t) => (
+          {brands.map((b) => (
             <button
-              key={t.id}
-              className={`filter-btn ${type === t.id ? 'active' : ''}`}
-              onClick={() => setType(t.id)}
+              key={b}
+              className={`filter-btn ${brand === b ? 'active' : ''}`}
+              onClick={() => setBrand(b)}
             >
-              {t.emoji} {t.name}
+              {b}
             </button>
           ))}
           <button
@@ -82,8 +84,37 @@ export default function ProductsPage() {
           </button>
         </div>
 
+        <div className="brand-insight" aria-live="polite">
+          <div>
+            <span className="brand-insight-kicker">브랜드 분류</span>
+            <h2>{brand === 'all' ? '브랜드별 케어 성격 보기' : brand}</h2>
+            <p>
+              {selectedBrand
+                ? selectedBrand.character
+                : '제품을 피부 타입으로만 나누지 않고, 브랜드가 반복해서 선택하는 성분과 제형 방향으로 다시 분류했습니다.'}
+            </p>
+          </div>
+          <div className="brand-insight-meta">
+            <div>
+              <span>분류</span>
+              <strong>{selectedBrand?.segment ?? '수분·진정·장벽·기능성'}</strong>
+            </div>
+            <div>
+              <span>특징</span>
+              <strong>{selectedBrand?.focus ?? '브랜드를 선택하면 핵심 특징을 보여줍니다.'}</strong>
+            </div>
+            <div className="brand-tag-row">
+              {(selectedBrand?.tags ?? ['브랜드별', '성분특징', '제품분류']).map((tag) => (
+                <span className="chip" key={tag}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <p style={{ color: 'var(--ink-faint)', fontSize: 14, marginBottom: 20 }}>
-          {filtered.length}개 제품
+          {brand === 'all' ? `${filtered.length}개 제품` : `${brand} ${selectedBrandCount}개 중 ${filtered.length}개 제품`}
         </p>
 
         {filtered.length > 0 ? (

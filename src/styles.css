@@ -1175,6 +1175,75 @@ section.block {
   color: var(--cream-50);
   border-color: var(--ink);
 }
+.brand-insight {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 22px;
+  align-items: stretch;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 4px 0 28px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
+}
+.brand-insight-kicker {
+  display: inline-flex;
+  color: var(--green-600);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.brand-insight h2 {
+  font-size: 24px;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+.brand-insight p {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  max-width: 44em;
+}
+.brand-insight-meta {
+  display: grid;
+  grid-template-columns: 0.9fr 1.35fr;
+  gap: 12px;
+}
+.brand-insight-meta > div {
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.46);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+[data-theme='dark'] .brand-insight-meta > div {
+  background: rgba(255, 255, 255, 0.04);
+}
+.brand-insight-meta span {
+  display: block;
+  color: var(--ink-faint);
+  font-size: 11.5px;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+.brand-insight-meta strong {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.brand-insight-meta .brand-tag-row {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+}
+.brand-tag-row .chip {
+  margin-bottom: 0;
+}
 
 /* ===================== 제품 상세 ===================== */
 .detail-hero {
@@ -2106,6 +2175,9 @@ section.block {
   .product-card.featured .pname {
     font-size: 22px;
   }
+  .brand-insight {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 760px) {
   .nav {
@@ -2147,6 +2219,15 @@ section.block {
   .product-card.featured .pc-media {
     width: 100%;
     aspect-ratio: 4 / 5;
+  }
+  .brand-insight {
+    padding: 20px;
+  }
+  .brand-insight-meta {
+    grid-template-columns: 1fr;
+  }
+  .brand-insight-meta .brand-tag-row {
+    grid-column: auto;
   }
   .hero-stats {
     gap: 24px;
