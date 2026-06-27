@@ -15,12 +15,18 @@ export default function ProductsPage() {
   const [brand, setBrand] = useState<BrandFilter>('all')
   const [fragranceFree, setFragranceFree] = useState(false)
 
+  // 제품 데이터에서 화면에 필요한 필터 선택지를 만든다.
+  // 브랜드는 별도 상수 목록을 두지 않고 실제 등록된 제품 기준으로 중복 제거한다.
   const categories = Object.keys(PRODUCT_CATEGORY_LABELS) as ProductCategory[]
   const brands = Array.from(new Set(PRODUCTS.map((p) => p.brand)))
+
+  // 선택된 브랜드가 있으면 브랜드 설명 패널에 보여줄 메타 정보를 연결한다.
   const selectedBrand = brand === 'all' ? null : BRAND_PROFILES[brand]
   const selectedBrandCount =
     brand === 'all' ? PRODUCTS.length : PRODUCTS.filter((p) => p.brand === brand).length
 
+  // 카테고리, 피부 타입, 브랜드, 무향 조건을 모두 만족하는 제품만 노출한다.
+  // 각 필터가 'all'이면 해당 조건은 건너뛰어 다른 필터와 독립적으로 조합된다.
   const filtered = useMemo(() => {
     return PRODUCTS.filter((p) => {
       if (cat !== 'all' && p.category !== cat) return false
@@ -108,6 +114,7 @@ export default function ProductsPage() {
           </button>
         </div>
 
+        {/* 선택한 브랜드의 분류 기준과 제품 성격을 요약 */}
         <div className="brand-insight" aria-live="polite">
           <div>
             <span className="brand-insight-kicker">브랜드 분류</span>
